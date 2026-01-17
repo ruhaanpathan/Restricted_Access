@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>100m Geofence Restriction</title>
+  <title>Geofence with Lat Long</title>
 </head>
 <body>
 
@@ -11,8 +11,8 @@
 
 <script>
 const GEOFENCE_CENTER = {
-  lat: 22.367198,   // CHANGE THIS
-  lng: 70.794939
+  lat: 23.022505,   // change if needed
+  lng: 72.571365
 };
 
 const GEOFENCE_RADIUS = 100; // meters
@@ -47,17 +47,31 @@ function checkGeofence(position) {
     GEOFENCE_CENTER.lng
   );
 
+  if (accuracy > 100) {
+    document.getElementById("output").innerHTML = `
+      ❌ Low GPS Accuracy<br>
+      Latitude: ${userLat}<br>
+      Longitude: ${userLng}<br>
+      Accuracy: ${accuracy} m
+    `;
+    return;
+  }
+
   if (distance <= GEOFENCE_RADIUS) {
     document.getElementById("output").innerHTML = `
       ✅ Access Granted<br>
-      Distance: ${distance.toFixed(2)} m<br>
+      Latitude: ${userLat}<br>
+      Longitude: ${userLng}<br>
+      Distance from center: ${distance.toFixed(2)} m<br>
       Accuracy: ${accuracy} m
     `;
   } else {
     document.getElementById("output").innerHTML = `
       ❌ Access Denied<br>
-      You are ${distance.toFixed(2)} meters away.<br>
-      Allowed range: 100 meters
+      Latitude: ${userLat}<br>
+      Longitude: ${userLng}<br>
+      Distance from center: ${distance.toFixed(2)} m<br>
+      Allowed radius: 100 m
     `;
   }
 }
