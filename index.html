@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>100m Geofence Restriction</title>
+</head>
+<body>
+
+<button onclick="getLocation()">Access System</button>
+<p id="output"></p>
+
+<script>
+const GEOFENCE_CENTER = {
+  lat: 22.367198,   // CHANGE THIS
+  lng: 70.794939
+};
+
+const GEOFENCE_RADIUS = 100; // meters
+
+function getLocation() {
+  if (!navigator.geolocation) {
+    document.getElementById("output").innerText =
+      "Geolocation not supported.";
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    checkGeofence,
+    showError,
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+}
+
+function checkGeofence(position) {
+  const userLat = position.coords.latitude;
+  const userLng = position.coords.longitude;
+  const accuracy = position.coords.accuracy;
+
+  const distance = getDistanceInMeters(
+    userLat,
+    userLng,
+    GEOFENCE_CENTER.lat,
+    GEOFENCE_CENTER.lng
+  );
+
+  if (distance <= GEOFENCE_RADIUS) {
+    document.getElementById("output").innerHTML = `
+      ✅ Access Granted<br>
+      Distance: ${distance.toFixed(2)} m<br>
+      Accuracy: ${accuracy} m
+    `;
+  } else {
+    document.getElementById("output").innerHTML = `
+      ❌ Access Denied<br>
+      You are ${distance.toFixed(2)} meters away.<br>
+      Allowed range: 100 meters
+    `;
+  }
+}
+
+function getDistanceInMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const toRad = deg => deg * Math.PI / 180;
+
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) *
+    Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) ** 2;
+
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
+function showError(error) {
+  document.getElementById("output").innerText =
+    "Location access denied or unavailable.";
+}
+</script>
+
+</body>
+</html>
